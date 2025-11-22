@@ -38,6 +38,16 @@
             tools:text="Thu, 30 Dec" />
 
         <TextView
+            android:id="@+id/battery_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:paddingHorizontal="2dp"
+            android:textColor="?attr/primaryColor"
+            android:textSize="@dimen/text_small"
+            tools:text="Battery: 85%" />
+
+        <TextView
             android:id="@+id/tvScreenTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -287,8 +297,9 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/app_list_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="180dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="24dp"
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
                 android:clipToPadding="false"

@@ -2,9 +2,11 @@ package app.budinlauncher
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -50,6 +52,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     private lateinit var binding: ActivityMainBinding
     private lateinit var appAdapter: AppAdapter
     private lateinit var viewModel: MainViewModel
+    
+    // Battery monitoring
+    private lateinit var batteryReceiver: BroadcastReceiver
 
     interface AppClickListener {
         fun appClicked(appModel: AppModel, flag: Int)
@@ -81,11 +86,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
+        // Make the activity fullscreen and hide system UI
         val window = window
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
+        
+        // Hide system UI for immersive experience
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+            window.insetsController?.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        }
+        
+        // Initialize battery monitoring
+        initBatteryMonitoring()
 
         binding.layoutMain.setOnTouchListener(getSwipeGestureListener(this))
 
@@ -147,6 +172,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         }
 
         refreshAppsList()
+        
+        // Update battery status
+        updateBatteryStatus()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Unregister battery receiver
+        if (::batteryReceiver.isInitialized) {
+            unregisterReceiver(batteryReceiver)
+        }
     }
 
     override fun onClick(view: View) {
@@ -688,5 +724,47 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         binding.homeApp6.setCompoundDrawables(null, null, null, null)
         binding.homeApp7.setCompoundDrawables(null, null, null, null)
         binding.homeApp8.setCompoundDrawables(null, null, null, null)
+    }
+    
+    private fun initBatteryMonitoring() {
+        batteryReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == Intent.ACTION_BATTERY_CHANGED) {
+                    updateBatteryStatus()
+                }
+            }
+        }
+        
+        // Register the battery receiver
+        val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        registerReceiver(batteryReceiver, filter)
+        
+        // Initial battery status update
+        updateBatteryStatus()
+    }
+    
+    private fun updateBatteryStatus() {
+        val batteryStatus: Intent? = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        
+        if (batteryStatus != null) {
+            val level: Int = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1)
+            val scale: Int = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1)
+            val batteryPct: Float = if (level != -1 && scale != -1) {
+                level / scale.toFloat()
+            } else {
+                0f
+            }
+            
+            val isCharging: Boolean = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_STATUS, -1) == android.os.BatteryManager.BATTERY_STATUS_CHARGING ||
+                    batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_STATUS, -1) == android.os.BatteryManager.BATTERY_STATUS_FULL
+            
+            val batteryText = if (isCharging) {
+                "Battery: ${(batteryPct * 100).toInt()}% ⚡"
+            } else {
+                "Battery: ${(batteryPct * 100).toInt()}%"
+            }
+            
+            binding.batteryIndicator.text = batteryText
+        }
     }
 }
