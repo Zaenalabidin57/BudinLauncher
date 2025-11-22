@@ -38,6 +38,8 @@ import androidx.recyclerview.widget.RecyclerView
 import app.budinlauncher.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
 import java.util.Collections
+import android.os.VibrationEffect
+import android.os.Vibrator
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClickListener {
 
@@ -52,13 +54,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     private lateinit var binding: ActivityMainBinding
     private lateinit var appAdapter: AppAdapter
     private lateinit var viewModel: MainViewModel
-    
+    private lateinit var vibrator: Vibrator
+
     // Battery monitoring
     private lateinit var batteryReceiver: BroadcastReceiver
 
     interface AppClickListener {
         fun appClicked(appModel: AppModel, flag: Int)
         fun appLongPress(appModel: AppModel)
+    }
+
+    private fun performHapticFeedback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(50)
+        }
     }
 
 
@@ -117,6 +129,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         // Initialize views before calling methods that use them
         launcherApps = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         initClickListeners()
         setHomeAlignment()
@@ -189,8 +202,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         when (view.id) {
             R.id.set_as_default_launcher -> resetDefaultLauncher()
             //R.id.clock -> startActivity(Intent(Intent(AlarmClock.ACTION_SHOW_ALARMS)))
-            R.id.clock -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.clock -> {
+                performHapticFeedback()
+                startActivity(Intent(this, SettingsActivity::class.java))
+            }
             R.id.date -> {
+                performHapticFeedback()
                 val intent = Intent(Intent.ACTION_MAIN)
                 intent.addCategory(Intent.CATEGORY_APP_CALENDAR)
                 intent.setPackage(null)
@@ -199,6 +216,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
             else -> {
                 try {
                     val location = view.tag.toString().toInt()
+                    performHapticFeedback()
                     homeAppClicked(location)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -527,6 +545,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     private fun getAppClickListener(): AppClickListener {
         return object : AppClickListener {
             override fun appClicked(appModel: AppModel, flag: Int) {
+                performHapticFeedback()
                 if (flag == FLAG_LAUNCH_APP) {
                     prepareToLaunchApp(appModel)
                 } else {
@@ -535,6 +554,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
             }
 
             override fun appLongPress(appModel: AppModel) {
+                performHapticFeedback()
                 hideKeyboard()
                 openAppInfo(appModel)
             }
