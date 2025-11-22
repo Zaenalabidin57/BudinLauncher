@@ -43,11 +43,7 @@ open class OnSwipeTouchListener(context: Context) : View.OnTouchListener {
 
         override fun onLongPress(motionEvent: MotionEvent) {
             longPressOn = true
-            Timer().schedule(object : TimerTask() {
-                override fun run() {
-                    if (longPressOn) this@OnSwipeTouchListener.onLongClick()
-                }
-            }, 500)
+            onLongClick()
             super.onLongPress(motionEvent)
         }
 

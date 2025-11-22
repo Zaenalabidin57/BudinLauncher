@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_clock">50sp</dimen>
+    <dimen name="text_large">26sp</dimen>
+    <dimen name="text_medium">20sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_search">26sp</dimen>
+</resources>
