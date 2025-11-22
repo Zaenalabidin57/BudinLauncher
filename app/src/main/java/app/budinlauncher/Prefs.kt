@@ -133,7 +133,7 @@ class Prefs(context: Context) {
         }
     }
 
-    fun setHomeApp(app: MainActivity.AppModel, location: Int) {
+    fun setHomeApp(app: AppModel, location: Int) {
         val editor = sharedPreferences.edit()
         when (location) {
             1 -> {

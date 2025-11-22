@@ -10,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 
 object AppMenuHelper {
 
-    fun showAppMenu(context: Context, appModel: MainActivity.AppModel, onRename: (String) -> Unit, onUninstall: () -> Unit, onAppInfo: () -> Unit) {
+    fun showAppMenu(context: Context, appModel: AppModel, onRename: (String) -> Unit, onUninstall: () -> Unit, onAppInfo: () -> Unit) {
         val options = arrayOf("Rename", "App info", "Uninstall")
         
         AlertDialog.Builder(context)

@@ -34,7 +34,7 @@ class SettingsActivity : Activity() {
         private const val FLAG_SET_HOME_APPS_NUM = 14
     }
 
-    private val appList = mutableListOf<MainActivity.AppModel>()
+    private val appList = mutableListOf<AppModel>()
     private lateinit var appAdapter: AppAdapter
     private lateinit var prefs: Prefs
     private var currentFlag = 0
@@ -300,7 +300,7 @@ class SettingsActivity : Activity() {
     private fun refreshAppsList() {
         Thread {
             try {
-                val apps = mutableListOf<MainActivity.AppModel>()
+                val apps = mutableListOf<AppModel>()
                 val userManager = getSystemService(Context.USER_SERVICE) as UserManager
                 val launcherApps = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
@@ -308,7 +308,7 @@ class SettingsActivity : Activity() {
                     for (activityInfo in launcherApps.getActivityList(null, profile)) {
                         if (!activityInfo.applicationInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
                             apps.add(
-                                MainActivity.AppModel(
+                                AppModel(
                                     activityInfo.label.toString(),
                                     activityInfo.applicationInfo.packageName,
                                     profile
@@ -334,7 +334,7 @@ class SettingsActivity : Activity() {
         }.start()
     }
 
-    private fun setSwipeApp(appModel: MainActivity.AppModel) {
+    private fun setSwipeApp(appModel: AppModel) {
         when (currentFlag) {
             FLAG_SET_SWIPE_LEFT_APP -> {
                 prefs.appNameSwipeLeft = appModel.appLabel
@@ -353,10 +353,10 @@ class SettingsActivity : Activity() {
 
     class AppAdapter(
         private val context: Context,
-        private var filteredAppsList: List<MainActivity.AppModel>
+        private var filteredAppsList: List<AppModel>
     ) : BaseAdapter(), Filterable {
 
-        private val allAppsList: List<MainActivity.AppModel> = filteredAppsList.toList()
+        private val allAppsList: List<AppModel> = filteredAppsList.toList()
 
         private class ViewHolder {
             lateinit var appName: TextView
@@ -375,7 +375,7 @@ class SettingsActivity : Activity() {
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val appModel = getItem(position) as MainActivity.AppModel
+            val appModel = getItem(position) as AppModel
             val viewHolder: ViewHolder
             val view: View
 
@@ -408,13 +408,13 @@ class SettingsActivity : Activity() {
             return object : Filter() {
                 override fun publishResults(constraint: CharSequence, results: FilterResults) {
                     @Suppress("UNCHECKED_CAST")
-                    filteredAppsList = results.values as List<MainActivity.AppModel>
+                    filteredAppsList = results.values as List<AppModel>
                     notifyDataSetChanged()
                 }
 
                 override fun performFiltering(constraint: CharSequence): FilterResults {
                     val results = FilterResults()
-                    val filteredApps = mutableListOf<MainActivity.AppModel>()
+                    val filteredApps = mutableListOf<AppModel>()
 
                     if (constraint.isEmpty()) {
                         filteredApps.addAll(allAppsList)
