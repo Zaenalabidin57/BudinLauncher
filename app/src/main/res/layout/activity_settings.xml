@@ -93,7 +93,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Apps on Home Screen" />
 
@@ -106,7 +106,7 @@
                         android:paddingVertical="8dp"
                         android:paddingStart="24dp"
                         android:paddingEnd="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         tools:text="6" />
@@ -124,7 +124,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="App Sorting" />
 
@@ -135,7 +135,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Alphabetical" />
@@ -177,7 +177,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Swipe Left App" />
 
@@ -188,7 +188,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Camera" />
@@ -206,7 +206,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Swipe Right App" />
 
@@ -217,7 +217,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Phone" />
@@ -259,7 +259,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Auto-show Keyboard" />
 
@@ -270,7 +270,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Off" />
@@ -288,7 +288,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Text Size" />
 
@@ -299,7 +299,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="4" />
@@ -317,7 +317,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="App Alignment" />
 
@@ -328,7 +328,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Left" />
@@ -355,7 +355,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Left" />
 
@@ -366,7 +366,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Center" />
 
@@ -377,7 +377,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Right" />
 
@@ -394,7 +394,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Theme" />
 
@@ -405,7 +405,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Dark" />
@@ -424,7 +424,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Reset Custom App Names" />
 
@@ -450,7 +450,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Light" />
 
@@ -461,7 +461,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Dark" />
 
@@ -472,7 +472,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="System" />
 
@@ -489,7 +489,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Show App Icons" />
 
@@ -500,7 +500,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="On" />
@@ -518,7 +518,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Thick Text" />
 
@@ -529,7 +529,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Off" />
@@ -557,7 +557,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:padding="12dp"
-                            android:textSize="@dimen/text_small"
+                            android:textSize="@dimen/text_medium"
                             android:textColor="?attr/primaryColor"
                             android:text="1" />
 
@@ -568,7 +568,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:padding="12dp"
-                            android:textSize="@dimen/text_small"
+                            android:textSize="@dimen/text_medium"
                             android:textColor="?attr/primaryColor"
                             android:text="2" />
 
@@ -681,7 +681,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:paddingVertical="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
                         android:text="Enable Screen Time" />
 
@@ -692,7 +692,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
-                        android:textSize="@dimen/text_small"
+                        android:textSize="@dimen/text_medium"
                         android:textStyle="bold"
                         android:textColor="?attr/primaryColor"
                         android:text="Off" />

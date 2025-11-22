@@ -268,7 +268,7 @@ class Prefs(context: Context) {
 
     // Theme methods
     var appTheme: Int
-        get() = sharedPreferences.getInt(APP_THEME, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
+        get() = sharedPreferences.getInt(APP_THEME, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         set(value) = sharedPreferences.edit().putInt(APP_THEME, value).apply()
 
     // Show app icons methods

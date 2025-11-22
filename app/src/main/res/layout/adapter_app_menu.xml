@@ -14,7 +14,7 @@
         android:paddingVertical="12dp"
         android:paddingStart="12dp"
         android:paddingEnd="24dp"
-        android:textSize="@dimen/text_medium"
+        android:textSize="@dimen/text_large"
         android:textColor="?attr/primaryColor"
         android:fontFamily="sans-serif-light"
         android:drawableLeft="@android:drawable/sym_def_app_icon"
@@ -139,7 +139,7 @@
             android:textColor="?attr/primaryColor"
             android:textColorHint="?attr/primaryColor"
             android:fontFamily="sans-serif-light"
-            android:textSize="@dimen/text_medium" />
+            android:textSize="@dimen/text_large" />
 
         <TextView
             android:id="@+id/save_rename"
