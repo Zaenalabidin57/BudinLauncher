@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BudinLauncher</string>
+    <string name="time_spent_hour">%1$sh %2$sm</string>
+    <string name="time_spent_minute">%1$sm</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="permission">Permission</string>
+    <string name="screen_time">Screen time</string>
+    <string name="app_usage_message">To show/hide your screen time on the home screen, please allow or disallow the app usage permission.\n\nNote: No app usage data is collected. Everything is processed on your device.</string>
 </resources>

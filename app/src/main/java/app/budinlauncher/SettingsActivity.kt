@@ -49,14 +49,15 @@ class SettingsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize prefs before setting theme
+        prefs = Prefs(this)
+
         // Apply theme before setting content view
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
-            Prefs(this).appTheme
+            prefs.appTheme
         )
 
         setContentView(R.layout.activity_settings)
-
-        prefs = Prefs(this)
         
         val listView = findViewById<ListView>(R.id.settings_list_view)
         appAdapter = AppAdapter(this, appList)

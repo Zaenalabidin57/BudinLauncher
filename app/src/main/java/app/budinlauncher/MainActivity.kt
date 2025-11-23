@@ -80,9 +80,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         newConfig.fontScale = Prefs(context).textSizeScale
         applyOverrideConfiguration(newConfig)
 
-        // Apply theme mode early
-        AppCompatDelegate.setDefaultNightMode(Prefs(context).appTheme)
-
         super.attachBaseContext(context)
     }
 
@@ -188,6 +185,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         
         // Update battery status
         updateBatteryStatus()
+
+        // Update screen time display
+        updateScreenTimeDisplay()
     }
     
     override fun onDestroy() {
@@ -765,7 +765,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     
     private fun updateBatteryStatus() {
         val batteryStatus: Intent? = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        
+
         if (batteryStatus != null) {
             val level: Int = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1)
             val scale: Int = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1)
@@ -774,17 +774,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
             } else {
                 0f
             }
-            
+
             val isCharging: Boolean = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_STATUS, -1) == android.os.BatteryManager.BATTERY_STATUS_CHARGING ||
                     batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_STATUS, -1) == android.os.BatteryManager.BATTERY_STATUS_FULL
-            
+
             val batteryText = if (isCharging) {
-                "Battery: ${(batteryPct * 100).toInt()}% ⚡"
+                "${(batteryPct * 100).toInt()}% ⚡"
             } else {
-                "Battery: ${(batteryPct * 100).toInt()}%"
+                "${(batteryPct * 100).toInt()}%"
             }
-            
+
             binding.batteryIndicator.text = batteryText
+        }
+    }
+
+    private fun updateScreenTimeDisplay() {
+        if (prefs.screenTimeEnabled) {
+            if (ScreenTimeHelper.isUsageAccessPermissionGranted(this)) {
+                binding.tvScreenTime.visibility = View.VISIBLE
+                binding.tvScreenTime.text = ScreenTimeHelper.getTodaysScreenTime(this, prefs)
+            } else {
+                binding.tvScreenTime.visibility = View.GONE
+            }
+        } else {
+            binding.tvScreenTime.visibility = View.GONE
         }
     }
 }
