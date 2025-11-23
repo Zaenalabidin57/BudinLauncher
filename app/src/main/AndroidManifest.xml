@@ -19,6 +19,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_launcher_round"
         android:theme="@style/AppTheme"
+        android:name=".BudinLauncherApplication"
         tools:targetApi="31">
 
         <activity
