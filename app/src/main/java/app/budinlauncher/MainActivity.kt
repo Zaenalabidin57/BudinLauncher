@@ -129,8 +129,34 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         initClickListeners()
-        setHomeAlignment()
+        setupPlanetLauncher()
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.appDrawerLayout.visibility == View.VISIBLE) {
+                    backToHome()
+                }
+            }
+        })
+
+        // Setup app drawer for app list functionality
+        setupAppDrawer()
+    }
+
+    private fun setupPlanetLauncher() {
+        binding.planetLauncherView.setOnAppClickListener { appModel ->
+            prepareToLaunchApp(appModel)
+        }
+
+        lifecycleScope.launch {
+            viewModel.appList.collect { apps ->
+                val planetApps = apps.take(8) // Limit to 8 apps for planet display
+                binding.planetLauncherView.setApps(planetApps)
+            }
+        }
+    }
+
+    private fun setupAppDrawer() {
         appAdapter = AppAdapter(this, appList, getAppClickListener())
         binding.appListView.layoutManager = LinearLayoutManager(this)
         binding.appListView.adapter = appAdapter
@@ -144,7 +170,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
             override fun afterTextChanged(editable: Editable) {}
         })
-        
+
         binding.appListView.addOnScrollListener(getScrollListener())
 
         lifecycleScope.launch {
@@ -154,35 +180,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                 appAdapter.updateAppList(appList)
             }
         }
-
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (binding.appDrawerLayout.visibility == View.VISIBLE) {
-                    backToHome()
-                }
-            }
-        })
     }
 
     override fun onResume() {
         super.onResume()
         backToHome()
-        populateHomeApps()
 
-        // Update text sizes and alignment dynamically
+        // Update text sizes dynamically
         updateHomeTextSizes()
-        updateHomeAppIcons()
         updateHomeFontFamily()
-        setHomeAlignment()
-
-        // Recreate adapter with updated context to ensure proper text scaling
-        if (::appAdapter.isInitialized) {
-            appAdapter = AppAdapter(this, appList, getAppClickListener())
-            binding.appListView.adapter = appAdapter
-        }
 
         refreshAppsList()
-        
+
         // Update battery status
         updateBatteryStatus()
 
@@ -201,7 +210,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     override fun onClick(view: View) {
         when (view.id) {
             R.id.set_as_default_launcher -> resetDefaultLauncher()
-            //R.id.clock -> startActivity(Intent(Intent(AlarmClock.ACTION_SHOW_ALARMS)))
             R.id.clock -> {
                 performHapticFeedback()
                 startActivity(Intent(this, SettingsActivity::class.java))
@@ -213,139 +221,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                 intent.setPackage(null)
                 startActivity(intent)
             }
-            else -> {
-                try {
-                    val location = view.tag.toString().toInt()
-                    performHapticFeedback()
-                    homeAppClicked(location)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
         }
     }
 
     override fun onLongClick(view: View): Boolean {
-        try {
-            val location = view.tag.toString().toInt()
-            showAppList(location)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // No long click handling needed for home apps anymore
         return true
     }
 
     private fun initClickListeners() {
         binding.setAsDefaultLauncher.setOnClickListener(this)
-
         binding.clock.setOnClickListener(this)
         binding.date.setOnClickListener(this)
-
-        binding.homeApp1.setOnClickListener(this)
-        binding.homeApp2.setOnClickListener(this)
-        binding.homeApp3.setOnClickListener(this)
-        binding.homeApp4.setOnClickListener(this)
-        binding.homeApp5.setOnClickListener(this)
-        binding.homeApp6.setOnClickListener(this)
-        binding.homeApp7.setOnClickListener(this)
-        binding.homeApp8.setOnClickListener(this)
-
-        binding.homeApp1.setOnLongClickListener(this)
-        binding.homeApp2.setOnLongClickListener(this)
-        binding.homeApp3.setOnLongClickListener(this)
-        binding.homeApp4.setOnLongClickListener(this)
-        binding.homeApp5.setOnLongClickListener(this)
-        binding.homeApp6.setOnLongClickListener(this)
-        binding.homeApp7.setOnLongClickListener(this)
-        binding.homeApp8.setOnLongClickListener(this)
-    }
-
-    private fun populateHomeApps() {
-        val homeAppsNum = prefs.homeAppsNum
-
-        // Hide all home apps first
-        binding.homeApp1.visibility = View.GONE
-        binding.homeApp2.visibility = View.GONE
-        binding.homeApp3.visibility = View.GONE
-        binding.homeApp4.visibility = View.GONE
-        binding.homeApp5.visibility = View.GONE
-        binding.homeApp6.visibility = View.GONE
-        binding.homeApp7.visibility = View.GONE
-        binding.homeApp8.visibility = View.GONE
-
-        if (homeAppsNum == 0) return
-
-        // Show and populate apps based on the number
-        binding.homeApp1.visibility = View.VISIBLE
-        val appPackage1 = prefs.getAppPackage(1)
-        if (appPackage1.isNotEmpty()) {
-            binding.homeApp1.text = prefs.getCustomAppName(appPackage1, prefs.getAppName(1))
-        } else {
-            binding.homeApp1.text = prefs.getAppName(1)
-        }
-        if (homeAppsNum == 1) return
-
-        binding.homeApp2.visibility = View.VISIBLE
-        val appPackage2 = prefs.getAppPackage(2)
-        if (appPackage2.isNotEmpty()) {
-            binding.homeApp2.text = prefs.getCustomAppName(appPackage2, prefs.getAppName(2))
-        } else {
-            binding.homeApp2.text = prefs.getAppName(2)
-        }
-        if (homeAppsNum == 2) return
-
-        binding.homeApp3.visibility = View.VISIBLE
-        val appPackage3 = prefs.getAppPackage(3)
-        if (appPackage3.isNotEmpty()) {
-            binding.homeApp3.text = prefs.getCustomAppName(appPackage3, prefs.getAppName(3))
-        } else {
-            binding.homeApp3.text = prefs.getAppName(3)
-        }
-        if (homeAppsNum == 3) return
-
-        binding.homeApp4.visibility = View.VISIBLE
-        val appPackage4 = prefs.getAppPackage(4)
-        if (appPackage4.isNotEmpty()) {
-            binding.homeApp4.text = prefs.getCustomAppName(appPackage4, prefs.getAppName(4))
-        } else {
-            binding.homeApp4.text = prefs.getAppName(4)
-        }
-        if (homeAppsNum == 4) return
-
-        binding.homeApp5.visibility = View.VISIBLE
-        val appPackage5 = prefs.getAppPackage(5)
-        if (appPackage5.isNotEmpty()) {
-            binding.homeApp5.text = prefs.getCustomAppName(appPackage5, prefs.getAppName(5))
-        } else {
-            binding.homeApp5.text = prefs.getAppName(5)
-        }
-        if (homeAppsNum == 5) return
-
-        binding.homeApp6.visibility = View.VISIBLE
-        val appPackage6 = prefs.getAppPackage(6)
-        if (appPackage6.isNotEmpty()) {
-            binding.homeApp6.text = prefs.getCustomAppName(appPackage6, prefs.getAppName(6))
-        } else {
-            binding.homeApp6.text = prefs.getAppName(6)
-        }
-        if (homeAppsNum == 6) return
-
-        binding.homeApp7.visibility = View.VISIBLE
-        val appPackage7 = prefs.getAppPackage(7)
-        if (appPackage7.isNotEmpty()) {
-            binding.homeApp7.text = prefs.getCustomAppName(appPackage7, prefs.getAppName(7))
-        } else {
-            binding.homeApp7.text = prefs.getAppName(7)
-        }
-        if (homeAppsNum == 7) return
-
-        binding.homeApp8.visibility = View.VISIBLE
-        val appPackage8 = prefs.getAppPackage(8)
-        if (appPackage8.isNotEmpty()) {
-            binding.homeApp8.text = prefs.getCustomAppName(appPackage8, prefs.getAppName(8))
-        } else {
-            binding.homeApp8.text = prefs.getAppName(8)
-        }
     }
 
     private fun showLongPressToast() {
@@ -456,22 +343,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         binding.search.text.clear()
     }
 
-    private fun homeAppClicked(location: Int) {
-        if (prefs.getAppPackage(location).isEmpty()) {
-            showLongPressToast()
-        } else {
-            val appPackage = prefs.getAppPackage(location)
-            prefs.incrementAppUsage(appPackage)
-            launchApp(
-                getAppModel(
-                    prefs.getAppName(location),
-                    appPackage,
-                    prefs.getAppUserHandle(location)
-                )
-            )
-        }
-    }
-
     private fun launchApp(appModel: AppModel) {
         val launcher = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         val appLaunchActivityList = launcher.getActivityList(appModel.appPackage, appModel.userHandle)
@@ -515,7 +386,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     private fun setHomeApp(appModel: AppModel, flag: Int) {
         prefs.setHomeApp(appModel, flag)
         backToHome()
-        populateHomeApps()
     }
 
     private fun checkForDefaultLauncher() {
@@ -717,36 +587,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
 
 
-    private fun setHomeAlignment() {
-        val horizontalGravity = prefs.homeAlignment
-        val verticalGravity = if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
-
-        binding.homeAppsLayout.gravity = horizontalGravity or verticalGravity
-
-        // Apply alignment to individual app text views
-        binding.homeApp1.gravity = horizontalGravity
-        binding.homeApp2.gravity = horizontalGravity
-        binding.homeApp3.gravity = horizontalGravity
-        binding.homeApp4.gravity = horizontalGravity
-        binding.homeApp5.gravity = horizontalGravity
-        binding.homeApp6.gravity = horizontalGravity
-        binding.homeApp7.gravity = horizontalGravity
-        binding.homeApp8.gravity = horizontalGravity
-    }
-
     private fun updateHomeTextSizes() {
-        // Update text sizes for home apps based on current font scale
-        val scaledTextSize = resources.getDimension(R.dimen.text_large) * prefs.textSizeScale
-
-        binding.homeApp1.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp2.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp3.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp4.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp5.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp6.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp7.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-        binding.homeApp8.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
-
         // Update clock and date text sizes
         val scaledClockSize = resources.getDimension(R.dimen.text_clock) * prefs.textSizeScale
         binding.clock.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledClockSize)
@@ -754,36 +595,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     }
 
     private fun updateHomeFontFamily() {
-        // Update font family for home apps based on thick text preference
+        // Update font family for clock and date
         val fontFamily = prefs.getFontFamily()
-
-        binding.homeApp1.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp2.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp3.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp4.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp5.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp6.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp7.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-        binding.homeApp8.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-
-        // Update clock and date font family
         binding.clock.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
         binding.date.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
 
         // Update search field font family
         binding.search.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
-    }
-
-    private fun updateHomeAppIcons() {
-        // Always hide icons on home screen - keep minimal look
-        binding.homeApp1.setCompoundDrawables(null, null, null, null)
-        binding.homeApp2.setCompoundDrawables(null, null, null, null)
-        binding.homeApp3.setCompoundDrawables(null, null, null, null)
-        binding.homeApp4.setCompoundDrawables(null, null, null, null)
-        binding.homeApp5.setCompoundDrawables(null, null, null, null)
-        binding.homeApp6.setCompoundDrawables(null, null, null, null)
-        binding.homeApp7.setCompoundDrawables(null, null, null, null)
-        binding.homeApp8.setCompoundDrawables(null, null, null, null)
     }
     
     private fun initBatteryMonitoring() {
