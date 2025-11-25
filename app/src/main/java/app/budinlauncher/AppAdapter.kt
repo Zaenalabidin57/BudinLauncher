@@ -118,6 +118,17 @@ class AppAdapter(
             binding.closeRename.setOnClickListener {
                 hideRenameDialog()
             }
+
+            // Set up enter key listener for rename EditText
+            binding.renameEditText.setOnEditorActionListener { _, actionId, event ->
+                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                    (event?.action == android.view.KeyEvent.ACTION_DOWN && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER)) {
+                    saveAppName(appModel)
+                    true
+                } else {
+                    false
+                }
+            }
             
             // Auto-launch if single result and flag is 0 (launch app)
             // Note: This might be risky in onBindViewHolder if the list updates frequently, 
@@ -169,6 +180,9 @@ class AppAdapter(
             if (newName.isNotEmpty()) {
                 setCustomAppName(context, appModel.appPackage, newName)
                 binding.appName.text = newName
+
+                // Refresh the entire app list to update sorting and display
+                notifyDataSetChanged()
             }
             hideRenameDialog()
         }
@@ -215,7 +229,9 @@ class AppAdapter(
                 } else {
                     val lowerCaseConstraint = constraint.toString().lowercase().trim()
                     for (app in allAppsList) {
-                        if (app.appLabel.lowercase().contains(lowerCaseConstraint)) {
+                        val customAppName = getCustomAppName(context, app.appPackage, app.appLabel)
+                        if (app.appLabel.lowercase().contains(lowerCaseConstraint) ||
+                            customAppName.lowercase().contains(lowerCaseConstraint)) {
                             filteredApps.add(app)
                         }
                     }

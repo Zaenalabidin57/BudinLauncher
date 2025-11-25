@@ -49,10 +49,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         val usage2 = prefs.getAppUsage(app2.appPackage)
                         when {
                             usage1 != usage2 -> usage2.compareTo(usage1) // Higher usage first
-                            else -> app1.appLabel.compareTo(app2.appLabel, ignoreCase = true) // Alphabetical as tiebreaker
+                            else -> {
+                                // Use custom names for alphabetical sorting when usage is equal
+                                val name1 = prefs.getCustomAppName(app1.appPackage, app1.appLabel)
+                                val name2 = prefs.getCustomAppName(app2.appPackage, app2.appLabel)
+                                name1.compareTo(name2, ignoreCase = true)
+                            }
                         }
                     } else { // Alphabetical
-                        app1.appLabel.compareTo(app2.appLabel, ignoreCase = true)
+                        // Use custom names for alphabetical sorting
+                        val name1 = prefs.getCustomAppName(app1.appPackage, app1.appLabel)
+                        val name2 = prefs.getCustomAppName(app2.appPackage, app2.appLabel)
+                        name1.compareTo(name2, ignoreCase = true)
                     }
                 }
                 tempApps

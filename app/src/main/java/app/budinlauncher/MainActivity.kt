@@ -277,35 +277,75 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
         // Show and populate apps based on the number
         binding.homeApp1.visibility = View.VISIBLE
-        binding.homeApp1.text = prefs.getAppName(1)
+        val appPackage1 = prefs.getAppPackage(1)
+        if (appPackage1.isNotEmpty()) {
+            binding.homeApp1.text = prefs.getCustomAppName(appPackage1, prefs.getAppName(1))
+        } else {
+            binding.homeApp1.text = prefs.getAppName(1)
+        }
         if (homeAppsNum == 1) return
 
         binding.homeApp2.visibility = View.VISIBLE
-        binding.homeApp2.text = prefs.getAppName(2)
+        val appPackage2 = prefs.getAppPackage(2)
+        if (appPackage2.isNotEmpty()) {
+            binding.homeApp2.text = prefs.getCustomAppName(appPackage2, prefs.getAppName(2))
+        } else {
+            binding.homeApp2.text = prefs.getAppName(2)
+        }
         if (homeAppsNum == 2) return
 
         binding.homeApp3.visibility = View.VISIBLE
-        binding.homeApp3.text = prefs.getAppName(3)
+        val appPackage3 = prefs.getAppPackage(3)
+        if (appPackage3.isNotEmpty()) {
+            binding.homeApp3.text = prefs.getCustomAppName(appPackage3, prefs.getAppName(3))
+        } else {
+            binding.homeApp3.text = prefs.getAppName(3)
+        }
         if (homeAppsNum == 3) return
 
         binding.homeApp4.visibility = View.VISIBLE
-        binding.homeApp4.text = prefs.getAppName(4)
+        val appPackage4 = prefs.getAppPackage(4)
+        if (appPackage4.isNotEmpty()) {
+            binding.homeApp4.text = prefs.getCustomAppName(appPackage4, prefs.getAppName(4))
+        } else {
+            binding.homeApp4.text = prefs.getAppName(4)
+        }
         if (homeAppsNum == 4) return
 
         binding.homeApp5.visibility = View.VISIBLE
-        binding.homeApp5.text = prefs.getAppName(5)
+        val appPackage5 = prefs.getAppPackage(5)
+        if (appPackage5.isNotEmpty()) {
+            binding.homeApp5.text = prefs.getCustomAppName(appPackage5, prefs.getAppName(5))
+        } else {
+            binding.homeApp5.text = prefs.getAppName(5)
+        }
         if (homeAppsNum == 5) return
 
         binding.homeApp6.visibility = View.VISIBLE
-        binding.homeApp6.text = prefs.getAppName(6)
+        val appPackage6 = prefs.getAppPackage(6)
+        if (appPackage6.isNotEmpty()) {
+            binding.homeApp6.text = prefs.getCustomAppName(appPackage6, prefs.getAppName(6))
+        } else {
+            binding.homeApp6.text = prefs.getAppName(6)
+        }
         if (homeAppsNum == 6) return
 
         binding.homeApp7.visibility = View.VISIBLE
-        binding.homeApp7.text = prefs.getAppName(7)
+        val appPackage7 = prefs.getAppPackage(7)
+        if (appPackage7.isNotEmpty()) {
+            binding.homeApp7.text = prefs.getCustomAppName(appPackage7, prefs.getAppName(7))
+        } else {
+            binding.homeApp7.text = prefs.getAppName(7)
+        }
         if (homeAppsNum == 7) return
 
         binding.homeApp8.visibility = View.VISIBLE
-        binding.homeApp8.text = prefs.getAppName(8)
+        val appPackage8 = prefs.getAppPackage(8)
+        if (appPackage8.isNotEmpty()) {
+            binding.homeApp8.text = prefs.getCustomAppName(appPackage8, prefs.getAppName(8))
+        } else {
+            binding.homeApp8.text = prefs.getAppName(8)
+        }
     }
 
     private fun showLongPressToast() {
