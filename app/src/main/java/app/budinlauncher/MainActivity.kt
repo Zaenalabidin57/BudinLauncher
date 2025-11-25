@@ -27,6 +27,7 @@ import android.widget.AbsListView
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.LinearLayout
 import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.OnBackPressedCallback
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
     private lateinit var prefs: Prefs
     private lateinit var launcherApps: LauncherApps
+    private lateinit var userManager: UserManager
     private lateinit var binding: ActivityMainBinding
     private lateinit var appAdapter: AppAdapter
     private lateinit var viewModel: MainViewModel
@@ -125,10 +127,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
         // Initialize views before calling methods that use them
         launcherApps = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        userManager = getSystemService(Context.USER_SERVICE) as UserManager
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         initClickListeners()
+        setupNavigationStyle()
         setupPlanetLauncher()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -143,17 +147,93 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         setupAppDrawer()
     }
 
+    private fun setupNavigationStyle() {
+        when (prefs.navigationStyle) {
+            Prefs.Constants.NavigationStyle.LIST -> {
+                binding.traditionalAppListContainer.visibility = View.VISIBLE
+                binding.planetLauncherView.visibility = View.GONE
+                setupTraditionalAppList()
+                setHomeAlignment() // Apply alignment when switching to list mode
+            }
+            Prefs.Constants.NavigationStyle.PLANET -> {
+                binding.traditionalAppListContainer.visibility = View.GONE
+                binding.planetLauncherView.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setupTraditionalAppList() {
+        // Set up click listeners for traditional home apps
+        binding.homeApp1.setOnClickListener(this)
+        binding.homeApp2.setOnClickListener(this)
+        binding.homeApp3.setOnClickListener(this)
+        binding.homeApp4.setOnClickListener(this)
+        binding.homeApp5.setOnClickListener(this)
+        binding.homeApp6.setOnClickListener(this)
+        binding.homeApp7.setOnClickListener(this)
+        binding.homeApp8.setOnClickListener(this)
+
+        binding.homeApp1.setOnLongClickListener(this)
+        binding.homeApp2.setOnLongClickListener(this)
+        binding.homeApp3.setOnLongClickListener(this)
+        binding.homeApp4.setOnLongClickListener(this)
+        binding.homeApp5.setOnLongClickListener(this)
+        binding.homeApp6.setOnLongClickListener(this)
+        binding.homeApp7.setOnLongClickListener(this)
+        binding.homeApp8.setOnLongClickListener(this)
+
+        populateHomeApps()
+    }
+
     private fun setupPlanetLauncher() {
         binding.planetLauncherView.setOnAppClickListener { appModel ->
             prepareToLaunchApp(appModel)
         }
 
         lifecycleScope.launch {
-            viewModel.appList.collect { apps ->
-                val planetApps = apps.take(8) // Limit to 8 apps for planet display
-                binding.planetLauncherView.setApps(planetApps)
+            // Use home apps (added apps) instead of most frequent apps
+            val homeApps = getHomeApps()
+            binding.planetLauncherView.setApps(homeApps)
+        }
+    }
+
+    private fun getHomeApps(): List<AppModel> {
+        val homeApps = mutableListOf<AppModel>()
+
+        // Get all installed apps to match against home app packages
+        val allApps = mutableListOf<AppModel>()
+        for (profile in userManager.userProfiles) {
+            for (activityInfo in launcherApps.getActivityList(null, profile)) {
+                if (activityInfo.applicationInfo.packageName != packageName) {
+                    allApps.add(
+                        AppModel(
+                            activityInfo.label.toString(),
+                            activityInfo.applicationInfo.packageName,
+                            profile
+                        )
+                    )
+                }
             }
         }
+
+        // Get home app packages from preferences (1-8)
+        for (i in 1..8) {
+            val package_name = prefs.getAppPackage(i)
+            val app_name = prefs.getAppName(i)
+            val userHandleStr = prefs.getAppUserHandle(i)
+
+            if (package_name.isNotEmpty()) {
+                // Find matching app in all apps
+                val matchingApp = allApps.find {
+                    it.appPackage == package_name
+                }
+                if (matchingApp != null) {
+                    homeApps.add(matchingApp)
+                }
+            }
+        }
+
+        return homeApps
     }
 
     private fun setupAppDrawer() {
@@ -186,9 +266,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         super.onResume()
         backToHome()
 
+        // Update navigation style in case it changed
+        setupNavigationStyle()
+
         // Update text sizes dynamically
         updateHomeTextSizes()
         updateHomeFontFamily()
+
+        // Update traditional app list if needed
+        if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+            populateHomeApps()
+            setHomeAlignment()
+        } else {
+            // Ensure planet launcher is properly set up
+            setupPlanetLauncher()
+        }
 
         refreshAppsList()
 
@@ -221,11 +313,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                 intent.setPackage(null)
                 startActivity(intent)
             }
+            else -> {
+                // Handle traditional home app clicks
+                if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+                    try {
+                        val location = view.tag.toString().toInt()
+                        performHapticFeedback()
+                        homeAppClicked(location)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
     override fun onLongClick(view: View): Boolean {
-        // No long click handling needed for home apps anymore
+        // Handle traditional home app long clicks
+        if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+            try {
+                val location = view.tag.toString().toInt()
+                showAppList(location)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         return true
     }
 
@@ -237,6 +349,94 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
     private fun showLongPressToast() {
         Toast.makeText(this, "Long press to select app", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun populateHomeApps() {
+        val homeAppsNum = prefs.homeAppsNum
+
+        // Hide all home apps first
+        binding.homeApp1.visibility = View.GONE
+        binding.homeApp2.visibility = View.GONE
+        binding.homeApp3.visibility = View.GONE
+        binding.homeApp4.visibility = View.GONE
+        binding.homeApp5.visibility = View.GONE
+        binding.homeApp6.visibility = View.GONE
+        binding.homeApp7.visibility = View.GONE
+        binding.homeApp8.visibility = View.GONE
+
+        if (homeAppsNum == 0) return
+
+        // Show and populate apps based on the number
+        binding.homeApp1.visibility = View.VISIBLE
+        val appPackage1 = prefs.getAppPackage(1)
+        if (appPackage1.isNotEmpty()) {
+            binding.homeApp1.text = prefs.getCustomAppName(appPackage1, prefs.getAppName(1))
+        } else {
+            binding.homeApp1.text = prefs.getAppName(1)
+        }
+        if (homeAppsNum == 1) return
+
+        binding.homeApp2.visibility = View.VISIBLE
+        val appPackage2 = prefs.getAppPackage(2)
+        if (appPackage2.isNotEmpty()) {
+            binding.homeApp2.text = prefs.getCustomAppName(appPackage2, prefs.getAppName(2))
+        } else {
+            binding.homeApp2.text = prefs.getAppName(2)
+        }
+        if (homeAppsNum == 2) return
+
+        binding.homeApp3.visibility = View.VISIBLE
+        val appPackage3 = prefs.getAppPackage(3)
+        if (appPackage3.isNotEmpty()) {
+            binding.homeApp3.text = prefs.getCustomAppName(appPackage3, prefs.getAppName(3))
+        } else {
+            binding.homeApp3.text = prefs.getAppName(3)
+        }
+        if (homeAppsNum == 3) return
+
+        binding.homeApp4.visibility = View.VISIBLE
+        val appPackage4 = prefs.getAppPackage(4)
+        if (appPackage4.isNotEmpty()) {
+            binding.homeApp4.text = prefs.getCustomAppName(appPackage4, prefs.getAppName(4))
+        } else {
+            binding.homeApp4.text = prefs.getAppName(4)
+        }
+        if (homeAppsNum == 4) return
+
+        binding.homeApp5.visibility = View.VISIBLE
+        val appPackage5 = prefs.getAppPackage(5)
+        if (appPackage5.isNotEmpty()) {
+            binding.homeApp5.text = prefs.getCustomAppName(appPackage5, prefs.getAppName(5))
+        } else {
+            binding.homeApp5.text = prefs.getAppName(5)
+        }
+        if (homeAppsNum == 5) return
+
+        binding.homeApp6.visibility = View.VISIBLE
+        val appPackage6 = prefs.getAppPackage(6)
+        if (appPackage6.isNotEmpty()) {
+            binding.homeApp6.text = prefs.getCustomAppName(appPackage6, prefs.getAppName(6))
+        } else {
+            binding.homeApp6.text = prefs.getAppName(6)
+        }
+        if (homeAppsNum == 6) return
+
+        binding.homeApp7.visibility = View.VISIBLE
+        val appPackage7 = prefs.getAppPackage(7)
+        if (appPackage7.isNotEmpty()) {
+            binding.homeApp7.text = prefs.getCustomAppName(appPackage7, prefs.getAppName(7))
+        } else {
+            binding.homeApp7.text = prefs.getAppName(7)
+        }
+        if (homeAppsNum == 7) return
+
+        binding.homeApp8.visibility = View.VISIBLE
+        val appPackage8 = prefs.getAppPackage(8)
+        if (appPackage8.isNotEmpty()) {
+            binding.homeApp8.text = prefs.getCustomAppName(appPackage8, prefs.getAppName(8))
+        } else {
+            binding.homeApp8.text = prefs.getAppName(8)
+        }
     }
 
     private fun backToHome() {
@@ -262,6 +462,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         appAdapter.setFlag(flag)
         binding.homeAppsLayout.visibility = View.GONE
         binding.appDrawerLayout.visibility = View.VISIBLE
+
+        // Apply the same alignment as home screen to app drawer
+        setAppDrawerAlignment()
 
         // Apply blur effect to app drawer background
         applyBlurToBackground()
@@ -343,6 +546,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         binding.search.text.clear()
     }
 
+    private fun homeAppClicked(location: Int) {
+        if (prefs.getAppPackage(location).isEmpty()) {
+            showLongPressToast()
+        } else {
+            val appPackage = prefs.getAppPackage(location)
+            prefs.incrementAppUsage(appPackage)
+            launchApp(
+                getAppModel(
+                    prefs.getAppName(location),
+                    appPackage,
+                    prefs.getAppUserHandle(location)
+                )
+            )
+        }
+    }
+
     private fun launchApp(appModel: AppModel) {
         val launcher = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         val appLaunchActivityList = launcher.getActivityList(appModel.appPackage, appModel.userHandle)
@@ -386,6 +605,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     private fun setHomeApp(appModel: AppModel, flag: Int) {
         prefs.setHomeApp(appModel, flag)
         backToHome()
+        // Update traditional app list if needed
+        if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+            populateHomeApps()
+        }
     }
 
     private fun checkForDefaultLauncher() {
@@ -568,6 +791,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
             override fun onSwipeUp() {
                 super.onSwipeUp()
+                // Show app drawer instead of planet launcher
                 showAppList(FLAG_LAUNCH_APP)
             }
 
@@ -578,7 +802,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
             override fun onLongClick() {
                 super.onLongClick()
-                startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+                // Only show settings on long press in list mode
+                if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+                    startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+                }
             }
         }
     }
@@ -592,6 +819,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         val scaledClockSize = resources.getDimension(R.dimen.text_clock) * prefs.textSizeScale
         binding.clock.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledClockSize)
         binding.date.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledClockSize * 0.4f) // Date is smaller
+
+        // Update text sizes for traditional home apps if needed
+        if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+            val scaledTextSize = resources.getDimension(R.dimen.text_large) * prefs.textSizeScale
+
+            binding.homeApp1.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp2.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp3.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp4.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp5.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp6.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp7.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+            binding.homeApp8.setTextSize(TypedValue.COMPLEX_UNIT_PX, scaledTextSize)
+        }
     }
 
     private fun updateHomeFontFamily() {
@@ -602,6 +843,56 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
         // Update search field font family
         binding.search.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+
+        // Update font family for traditional home apps if needed
+        if (prefs.navigationStyle == Prefs.Constants.NavigationStyle.LIST) {
+            binding.homeApp1.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp2.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp3.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp4.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp5.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp6.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp7.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+            binding.homeApp8.typeface = android.graphics.Typeface.create(fontFamily, android.graphics.Typeface.NORMAL)
+        }
+    }
+
+    private fun setHomeAlignment() {
+        val horizontalGravity = prefs.homeAlignment
+        val verticalGravity = if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
+
+        binding.homeAppsLayout.gravity = horizontalGravity or verticalGravity
+
+        // Apply alignment to individual app text views
+        binding.homeApp1.gravity = horizontalGravity
+        binding.homeApp2.gravity = horizontalGravity
+        binding.homeApp3.gravity = horizontalGravity
+        binding.homeApp4.gravity = horizontalGravity
+        binding.homeApp5.gravity = horizontalGravity
+        binding.homeApp6.gravity = horizontalGravity
+        binding.homeApp7.gravity = horizontalGravity
+        binding.homeApp8.gravity = horizontalGravity
+    }
+
+    private fun setAppDrawerAlignment() {
+        val horizontalGravity = prefs.homeAlignment
+
+        // Apply alignment to app drawer content container
+        val appDrawerContent = binding.appDrawerLayout.getChildAt(1) as LinearLayout
+        appDrawerContent.gravity = horizontalGravity or Gravity.TOP
+
+        // Apply alignment to search field
+        binding.search.gravity = horizontalGravity
+        binding.search.textAlignment = when (horizontalGravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
+            Gravity.LEFT -> View.TEXT_ALIGNMENT_TEXT_START
+            Gravity.RIGHT -> View.TEXT_ALIGNMENT_TEXT_END
+            else -> View.TEXT_ALIGNMENT_GRAVITY
+        }
+
+        // Apply alignment to RecyclerView by setting its layout parameters
+        val layoutParams = binding.appListView.layoutParams as LinearLayout.LayoutParams
+        layoutParams.gravity = horizontalGravity
+        binding.appListView.layoutParams = layoutParams
     }
     
     private fun initBatteryMonitoring() {

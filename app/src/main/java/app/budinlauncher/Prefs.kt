@@ -82,6 +82,9 @@ class Prefs(context: Context) {
 
         // Thick text preference
         private const val THICK_TEXT = "THICK_TEXT"
+
+        // Navigation style preference
+        private const val NAVIGATION_STYLE = "NAVIGATION_STYLE"
     }
 
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
@@ -284,5 +287,23 @@ class Prefs(context: Context) {
     // Get font family based on thick text preference
     fun getFontFamily(): String {
         return if (thickText) "sans-serif-medium" else "sans-serif-light"
+    }
+
+    // Navigation style methods
+    var navigationStyle: Int
+        get() = sharedPreferences.getInt(NAVIGATION_STYLE, Constants.NavigationStyle.PLANET)
+        set(value) = sharedPreferences.edit().putInt(NAVIGATION_STYLE, value).apply()
+
+    object Constants {
+        object Alignment {
+            const val LEFT = 1
+            const val CENTER = 2
+            const val RIGHT = 3
+        }
+
+        object NavigationStyle {
+            const val LIST = 0
+            const val PLANET = 1
+        }
     }
 }

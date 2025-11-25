@@ -99,6 +99,18 @@ class SettingsActivity : Activity() {
             showHomeAppsNumDialog()
         }
 
+        findViewById<View>(R.id.navigation_style).setOnClickListener {
+            toggleNavigationStyleLayout()
+        }
+
+        findViewById<View>(R.id.navigation_list).setOnClickListener {
+            updateNavigationStyle(Prefs.Constants.NavigationStyle.LIST)
+        }
+
+        findViewById<View>(R.id.navigation_planet).setOnClickListener {
+            updateNavigationStyle(Prefs.Constants.NavigationStyle.PLANET)
+        }
+
         findViewById<View>(R.id.keyboard_auto_show).setOnClickListener {
             toggleKeyboardAutoShow()
         }
@@ -192,6 +204,7 @@ class SettingsActivity : Activity() {
         updateThemeDisplay()
         updateShowAppIconsDisplay()
         updateThickTextDisplay()
+        updateNavigationStyleDisplay()
         updateSettingsFontFamily()
     }
 
@@ -598,6 +611,37 @@ class SettingsActivity : Activity() {
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(themeMode)
 
         // Restart activities to apply the theme change
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun updateNavigationStyleDisplay() {
+        val navigationStyleText = when (prefs.navigationStyle) {
+            Prefs.Constants.NavigationStyle.LIST -> "List"
+            Prefs.Constants.NavigationStyle.PLANET -> "Planet"
+            else -> "Planet"
+        }
+        findViewById<TextView>(R.id.navigation_style).text = navigationStyleText
+    }
+
+    private fun toggleNavigationStyleLayout() {
+        val navigationStyleLayout = findViewById<View>(R.id.navigation_style_layout)
+        if (navigationStyleLayout.visibility == View.VISIBLE) {
+            navigationStyleLayout.visibility = View.GONE
+        } else {
+            navigationStyleLayout.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateNavigationStyle(navigationStyle: Int) {
+        if (prefs.navigationStyle == navigationStyle) return
+        prefs.navigationStyle = navigationStyle
+        updateNavigationStyleDisplay()
+        findViewById<View>(R.id.navigation_style_layout).visibility = View.GONE
+
+        // Restart main activity to apply navigation style change
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)

@@ -7,14 +7,21 @@
     android:animateLayoutChanges="true"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/home_apps_layout"
+    <!-- Planet Launcher - Full Screen Overlay (behind other UI) -->
+    <app.budinlauncher.PlanetLauncherView
+        android:id="@+id/planet_launcher_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Top Info Bar - Always on Top -->
+    <LinearLayout
+        android:id="@+id/top_info_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
         android:layout_margin="24dp"
-        android:animateLayoutChanges="true"
         android:orientation="vertical"
-        tools:visibility="visible">
+        android:gravity="start">
 
         <TextClock
             android:id="@+id/clock"
@@ -61,16 +68,201 @@
             tools:ignore="HardcodedText"
             tools:visibility="visible" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/home_apps_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="24dp"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        tools:visibility="visible">
+
         <Space
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <app.budinlauncher.PlanetLauncherView
-            android:id="@+id/planet_launcher_view"
+        <!-- Traditional App List Container -->
+        <LinearLayout
+            android:id="@+id/traditional_app_list_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Traditional App List -->
+            <LinearLayout
+                android:id="@+id/traditional_app_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/home_app_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="1"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="2"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="3"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="4"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="5"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="6"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="7"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/home_app_8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="App"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:minWidth="100dp"
+                    android:paddingVertical="10dp"
+                    android:shadowColor="?attr/primaryTextShadowColor"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:tag="8"
+                    android:textColor="?attr/primaryColor"
+                    android:textColorHint="?attr/primaryColor"
+                    android:textSize="@dimen/text_large"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/set_as_default_launcher"

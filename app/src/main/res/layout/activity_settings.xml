@@ -126,6 +126,72 @@
                         android:paddingVertical="8dp"
                         android:textSize="@dimen/text_medium"
                         android:textColor="?attr/primaryColor"
+                        android:text="Navigation Style" />
+
+                    <TextView
+                        android:id="@+id/navigation_style"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="4dp"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textStyle="bold"
+                        android:textColor="?attr/primaryColor"
+                        android:text="Planet" />
+
+                </FrameLayout>
+
+                <!-- Navigation style layout -->
+                <LinearLayout
+                    android:id="@+id/navigation_style_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:animateLayoutChanges="true"
+                    android:background="@drawable/rounded_primary_gradient"
+                    android:elevation="8dp"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/navigation_list"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="List" />
+
+                    <TextView
+                        android:id="@+id/navigation_planet"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="Planet" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:animateLayoutChanges="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingVertical="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
                         android:text="App Sorting" />
 
                     <TextView
@@ -542,104 +608,89 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:orientation="vertical"
+                    android:animateLayoutChanges="true"
+                    android:background="@drawable/rounded_primary_gradient"
+                    android:elevation="8dp"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
                     android:visibility="gone">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/text_size_1"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="1" />
 
-                        <TextView
-                            android:id="@+id/text_size_1"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="1" />
-
-                        <TextView
-                            android:id="@+id/text_size_2"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="2" />
-
-                        <TextView
-                            android:id="@+id/text_size_3"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="3" />
-
-                        <TextView
-                            android:id="@+id/text_size_4"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="4" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/text_size_2"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="2" />
 
-                        <TextView
-                            android:id="@+id/text_size_5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="5" />
+                    <TextView
+                        android:id="@+id/text_size_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="3" />
 
-                        <TextView
-                            android:id="@+id/text_size_6"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="6" />
+                    <TextView
+                        android:id="@+id/text_size_4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="4" />
 
-                        <TextView
-                            android:id="@+id/text_size_7"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:padding="12dp"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="?attr/primaryColor"
-                            android:text="7" />
+                    <TextView
+                        android:id="@+id/text_size_5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="5" />
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
+                    <TextView
+                        android:id="@+id/text_size_6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="6" />
 
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/text_size_7"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="?attr/primaryColor"
+                        android:text="7" />
 
                 </LinearLayout>
 

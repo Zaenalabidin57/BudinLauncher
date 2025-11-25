@@ -5,15 +5,19 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.pm.LauncherApps
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Vibrator
 import android.os.VibrationEffect
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import kotlin.math.*
 
 class PlanetLauncherView @JvmOverloads constructor(
@@ -29,7 +33,7 @@ class PlanetLauncherView @JvmOverloads constructor(
         var size: Float = 0f,
         var x: Float = 0f,
         var y: Float = 0f,
-        var color: Int = 0,
+        var appIcon: Drawable? = null,
         var targetX: Float = 0f,
         var targetY: Float = 0f,
         var currentScale: Float = 0f,
@@ -55,20 +59,14 @@ class PlanetLauncherView @JvmOverloads constructor(
     private var isLongPress = false
     private var selectedPlanet: Planet? = null
     private var longPressAnimation: ValueAnimator? = null
-    
-    private val planetColors = listOf(
-        Color.parseColor("#FF6B6B"), // Red
-        Color.parseColor("#4ECDC4"), // Teal
-        Color.parseColor("#45B7D1"), // Blue
-        Color.parseColor("#96CEB4"), // Green
-        Color.parseColor("#FFEAA7"), // Yellow
-        Color.parseColor("#DDA0DD"), // Plum
-        Color.parseColor("#98D8C8"), // Mint
-        Color.parseColor("#F7DC6F")  // Gold
-    )
+    private var hasMovedOutsideNeutralZone = false
+
+    private lateinit var launcherApps: LauncherApps
+    private var primaryColor = Color.WHITE
+    private var primaryTextColor = Color.WHITE
+    private var primaryShadeColor = Color.parseColor("#40FFFFFF")
 
     private val sunPaint = Paint().apply {
-        color = Color.parseColor("#FFD700")
         isAntiAlias = true
         style = Paint.Style.FILL
     }
@@ -89,13 +87,10 @@ class PlanetLauncherView @JvmOverloads constructor(
         isAntiAlias = true
         style = Paint.Style.STROKE
         strokeWidth = 2f
-        color = Color.parseColor("#40FFFFFF")
     }
 
     private val textPaint = Paint().apply {
         isAntiAlias = true
-        color = Color.WHITE
-        textSize = 48f
         textAlign = Paint.Align.CENTER
     }
 
@@ -104,6 +99,36 @@ class PlanetLauncherView @JvmOverloads constructor(
 
     init {
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        loadThemeColors(context)
+    }
+
+    private fun loadThemeColors(context: Context) {
+        val typedValue = TypedValue()
+        val theme = context.theme
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        primaryTextColor = typedValue.data
+
+        theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        val backgroundColor = typedValue.data
+
+        // Create contrasting colors
+        primaryColor = if (isColorLight(backgroundColor)) Color.BLACK else Color.WHITE
+        primaryShadeColor = Color.argb(64, Color.red(primaryColor), Color.green(primaryColor), Color.blue(primaryColor))
+
+        // Update paints with theme colors
+        sunPaint.color = primaryColor
+        selectedPlanetPaint.color = primaryColor
+        orbitPaint.color = primaryShadeColor
+        textPaint.color = primaryTextColor
+
+        // Set text size based on theme
+        textPaint.textSize = 48f * context.resources.displayMetrics.scaledDensity
+    }
+
+    private fun isColorLight(color: Int): Boolean {
+        val darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
+        return darkness > 0.5
     }
 
     fun setOnAppClickListener(listener: (AppModel) -> Unit) {
@@ -113,8 +138,15 @@ class PlanetLauncherView @JvmOverloads constructor(
     fun setApps(apps: List<AppModel>) {
         planets.clear()
         apps.forEachIndexed { index, app ->
-            val color = planetColors[index % planetColors.size]
-            planets.add(Planet(app, color = color))
+            val appIcon = try {
+                val activityList = launcherApps.getActivityList(app.appPackage, app.userHandle)
+                if (activityList.isNotEmpty()) {
+                    activityList[0].getIcon(0)
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+            planets.add(Planet(app, appIcon = appIcon))
         }
         invalidate()
     }
@@ -130,15 +162,15 @@ class PlanetLauncherView @JvmOverloads constructor(
         sun.currentScale = 0f
         sun.targetScale = 1f
 
-        val orbitRadius = 150f
+        val orbitRadius = 250f
         val angleStep = (2 * PI / planets.size).toFloat()
 
         planets.forEachIndexed { index, planet ->
             planet.angle = index * angleStep
-            planet.radius = 40f
+            planet.radius = 50f
             planet.targetScale = 1f
             planet.currentScale = 0f
-            
+
             val targetX = centerX + cos(planet.angle) * orbitRadius
             val targetY = centerY + sin(planet.angle) * orbitRadius
             planet.targetX = targetX.toFloat()
@@ -261,18 +293,19 @@ class PlanetLauncherView @JvmOverloads constructor(
 
         // Draw orbits
         planets.forEach { planet ->
-            val orbitRadius = 150f
+            val orbitRadius = 250f
             canvas.drawCircle(centerX, centerY, orbitRadius, orbitPaint)
         }
 
         // Draw sun
         if (sun.currentScale > 0) {
             val sunRadius = sun.radius * sun.currentScale
+            sunPaint.color = primaryColor
             canvas.drawCircle(sun.x, sun.y, sunRadius, sunPaint)
-            
+
             // Sun glow effect
             val glowPaint = Paint().apply {
-                color = Color.parseColor("#40FFD700")
+                color = Color.argb(40, Color.red(primaryColor), Color.green(primaryColor), Color.blue(primaryColor))
                 isAntiAlias = true
                 style = Paint.Style.FILL
             }
@@ -283,27 +316,49 @@ class PlanetLauncherView @JvmOverloads constructor(
         planets.forEach { planet ->
             if (planet.currentScale > 0) {
                 val planetRadius = planet.radius * planet.currentScale * planet.targetScale
-                planetPaint.color = planet.color
-                canvas.drawCircle(planet.x, planet.y, planetRadius, planetPaint)
-                
+
+                // Draw app icon if available, otherwise draw colored circle
+                planet.appIcon?.let { icon ->
+                    val iconSize = (planetRadius * 2).toInt()
+                    icon.setBounds(
+                        (planet.x - planetRadius).toInt(),
+                        (planet.y - planetRadius).toInt(),
+                        (planet.x + planetRadius).toInt(),
+                        (planet.y + planetRadius).toInt()
+                    )
+                    icon.draw(canvas)
+                } ?: run {
+                    // Fallback to colored circle if no icon
+                    planetPaint.color = primaryColor
+                    canvas.drawCircle(planet.x, planet.y, planetRadius, planetPaint)
+                }
+
                 // Draw selection ring if selected
                 if (planet.isSelected) {
+                    selectedPlanetPaint.color = primaryColor
                     canvas.drawCircle(planet.x, planet.y, planetRadius + 12f, selectedPlanetPaint)
                 }
-                
+
                 // Draw app label
+                textPaint.color = primaryTextColor
                 canvas.drawText(planet.appModel.appLabel, planet.x, planet.y + planetRadius + 30f, textPaint)
             }
         }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        // If planets aren't showing, don't consume touch events
+        if (!isShowing) {
+            return false
+        }
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 touchStartX = event.x
                 touchStartY = event.y
                 isLongPress = false
-                
+                hasMovedOutsideNeutralZone = false
+
                 // Start long press detection
                 longPressAnimation = ValueAnimator.ofFloat(0f, 1f).apply {
                     duration = 500
@@ -318,59 +373,85 @@ class PlanetLauncherView @JvmOverloads constructor(
                 longPressAnimation?.start()
                 return true
             }
-            
+
             MotionEvent.ACTION_MOVE -> {
                 if (isLongPress) {
-                    val nearestPlanet = findNearestPlanet(event.x, event.y)
-                    if (nearestPlanet != null && nearestPlanet != selectedPlanet) {
-                        selectedPlanet?.let { 
-                            it.isSelected = false
+                    // Calculate distance from touch start (center)
+                    val distanceFromCenter = sqrt((event.x - touchStartX).pow(2) + (event.y - touchStartY).pow(2))
+                    val neutralZoneRadius = 80f // Neutral zone radius around touch start point
+
+                    // Check if user moved significantly (potential swipe gesture)
+                    val totalMovement = sqrt((event.x - touchStartX).pow(2) + (event.y - touchStartY).pow(2))
+                    if (totalMovement > 150f) {
+                        // User is trying to swipe, cancel planet interaction
+                        longPressAnimation?.cancel()
+                        isLongPress = false
+                        selectedPlanet = null
+                        hasMovedOutsideNeutralZone = false
+                        hidePlanets()
+                        return false // Let parent handle swipe
+                    }
+
+                    // Check if user moved outside neutral zone
+                    if (distanceFromCenter > neutralZoneRadius) {
+                        if (!hasMovedOutsideNeutralZone) {
+                            hasMovedOutsideNeutralZone = true
                         }
-                        selectedPlanet = nearestPlanet
-                        nearestPlanet.isSelected = true
-                        performHapticFeedback()
-                        invalidate()
+
+                        val nearestPlanet = findNearestPlanet(event.x, event.y)
+                        if (nearestPlanet != null && nearestPlanet != selectedPlanet) {
+                            selectedPlanet?.let {
+                                it.isSelected = false
+                            }
+                            selectedPlanet = nearestPlanet
+                            nearestPlanet.isSelected = true
+                            performHapticFeedback()
+                            invalidate()
+                        }
+                    } else {
+                        // User is back in neutral zone, deselect any selected planet
+                        if (hasMovedOutsideNeutralZone) {
+                            selectedPlanet?.let {
+                                it.isSelected = false
+                            }
+                            selectedPlanet = null
+                            invalidate()
+                        }
                     }
                 }
                 return true
             }
-            
+
             MotionEvent.ACTION_UP -> {
                 longPressAnimation?.cancel()
-                
+
                 if (isLongPress) {
-                    selectedPlanet?.let { planet ->
-                        animatePlanetSelection(planet)
-                        onAppClickListener?.invoke(planet.appModel)
+                    // Only launch app if user moved outside neutral zone and has a selected planet
+                    if (hasMovedOutsideNeutralZone && selectedPlanet != null) {
+                        selectedPlanet?.let { planet ->
+                            animatePlanetSelection(planet)
+                            onAppClickListener?.invoke(planet.appModel)
+                        }
                     }
                     hidePlanets()
-                } else {
-                    // Handle tap - check if tapped on a planet
-                    val tappedPlanet = findTappedPlanet(event.x, event.y)
-                    if (tappedPlanet != null) {
-                        animatePlanetSelection(tappedPlanet)
-                        onAppClickListener?.invoke(tappedPlanet.appModel)
-                        hidePlanets()
-                    } else {
-                        // Show planets at tap location
-                        showPlanets(event.x, event.y)
-                    }
                 }
-                
+
                 isLongPress = false
                 selectedPlanet = null
+                hasMovedOutsideNeutralZone = false
                 return true
             }
-            
+
             MotionEvent.ACTION_CANCEL -> {
                 longPressAnimation?.cancel()
                 isLongPress = false
                 selectedPlanet = null
+                hasMovedOutsideNeutralZone = false
                 hidePlanets()
                 return true
             }
         }
-        
+
         return super.onTouchEvent(event)
     }
 
